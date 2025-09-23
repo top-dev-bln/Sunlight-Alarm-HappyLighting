@@ -7,12 +7,21 @@
     android:gravity="center">
 
 
-
     <TextView
-        android:id="@+id/tvStatus"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Status: waiting"
-        android:paddingTop="20dp" />
+        android:text="Please Select Your Device"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:gravity="center"/>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/RecycleCards"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 
 </LinearLayout>
