@@ -116,6 +116,9 @@ public class MainActivity extends AppCompatActivity {
                             editor.putString("device", devices.get(getBindingAdapterPosition()).getDevice().getAddress());
                             editor.apply();
                             dialog.dismiss();
+                            Intent intent = new Intent(MainActivity.this, Controller.class);
+                            intent.putExtra("MAC_ADDRESS", devices.get(getBindingAdapterPosition()).getDevice().getAddress());
+                            startActivity(intent);
                         }
                     });
 
@@ -164,13 +167,15 @@ public class MainActivity extends AppCompatActivity {
         String selectedDevice = prefs.getString("device", null);
         if (selectedDevice != null) {
             Log.d("BLE", "Selected device: " + selectedDevice);
-            Intent intent = new Intent(CurrentActivity.this, SecondActivity.class);
+            Intent intent = new Intent(MainActivity.this, Controller.class);
+            intent.putExtra("MAC_ADDRESS", selectedDevice);
             startActivity(intent);
+
             Log.d("BLE", "Redirecting to second activity with device: " + selectedDevice);
         }
         else {
             Log.d("BLE", "No selected device");
-        }
+
 
 
         recyclerView = findViewById(R.id.RecycleCards);
@@ -221,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
             initScannerAndStartScan();
         }
     }
-
+    }
     private void initScannerAndStartScan() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -261,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void checkAndRequestPermissions() {
+    public void checkAndRequestPermissions() {
         ArrayList<String> needed = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED)
