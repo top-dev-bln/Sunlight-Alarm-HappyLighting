@@ -71,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            if (position >= devices.size()) {
+                return;
+            }
             ScanResult result = devices.get(position);
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 holder.nameTextView.setText("Unknown");
@@ -104,6 +107,18 @@ public class MainActivity extends AppCompatActivity {
                     builder.setView(dialogView);
                     AlertDialog dialog = builder.create();
                     dialog.show();
+
+                    View cardView = dialogView.findViewById(R.id.dialogCard);
+
+                    TextView dialogName = cardView.findViewById(R.id.deviceName);
+                    TextView dialogAddress = cardView.findViewById(R.id.deviceAddress);
+                    TextView dialogRssi = cardView.findViewById(R.id.deviceRssi);
+
+                    dialogName.setText(nameTextView.getText().toString());
+                    dialogAddress.setText(adressTextView.getText().toString());
+                    dialogRssi.setText(rssiTextView.getText().toString());
+
+
                     dialogView.findViewById(R.id.buttonSelect);
                     dialogView.findViewById(R.id.buttonCancel);
 

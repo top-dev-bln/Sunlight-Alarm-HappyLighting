@@ -1,19 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center">
 
-
-    <TextView
-        android:id="@+id/Connecting"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/controls"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Trying to Find the Device"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        android:gravity="center"/>
+        android:orientation="horizontal"
+
+        >
+
+
+        <Button
+            android:id="@+id/button_ON"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ON" />
+
+        <Button
+            android:id="@+id/button_OFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="OFF" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_Disconnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Disconect" />
+
+
+
+    </LinearLayout>
+
+
 </LinearLayout>
