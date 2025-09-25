@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.card, parent, false);
+                    .inflate(R.layout.card_device, parent, false);
             return new ViewHolder(view);
         }
 

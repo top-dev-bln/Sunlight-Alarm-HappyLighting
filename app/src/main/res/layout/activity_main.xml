@@ -17,6 +17,15 @@
         android:layout_gravity="center"
         android:gravity="center"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:gravity="center"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/RecycleCards"

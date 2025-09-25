@@ -20,7 +20,7 @@
 
     <include
         android:id="@+id/dialogCard"
-        layout="@layout/card"
+        layout="@layout/card_device"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/textView"

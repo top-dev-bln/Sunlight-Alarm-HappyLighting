@@ -50,7 +50,7 @@ public class Controller extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothLeScanner scanner;
 
-    LinearLayout controls;
+
 
 
     @Override
@@ -58,44 +58,8 @@ public class Controller extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_controller);
 
-        Button btnON = findViewById(R.id.button_ON);
-        Button btnOFF = findViewById(R.id.button_OFF);
         Button btnDisconnect = findViewById(R.id.button_Disconnect);
-        controls = findViewById(R.id.controls);
 
-
-        btnON.setOnClickListener(v -> {
-            if (targetChar != null) {
-                targetChar.setValue(new byte[]{(byte)204, (byte)35, (byte)51});
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                        ActivityCompat.checkSelfPermission(Controller.this, Manifest.permission.BLUETOOTH_CONNECT)
-                                != PackageManager.PERMISSION_GRANTED) {
-                    Log.e("BLE", "BLUETOOTH_CONNECT permission not granted, cannot discover services");
-                    return;
-                }
-                bluetoothGatt.writeCharacteristic(targetChar);
-            } else {
-                Log.e("BLE", "Target characteristic not found");
-            }
-        });
-
-
-
-
-        btnOFF.setOnClickListener(v -> {
-            if (targetChar != null) {
-                targetChar.setValue(new byte[]{(byte)204, (byte)36, (byte)51});
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                        ActivityCompat.checkSelfPermission(Controller.this, Manifest.permission.BLUETOOTH_CONNECT)
-                                != PackageManager.PERMISSION_GRANTED) {
-                    Log.e("BLE", "BLUETOOTH_CONNECT permission not granted, cannot discover services");
-                    return;
-                }
-                bluetoothGatt.writeCharacteristic(targetChar);
-            } else {
-                Log.e("BLE", "Target characteristic not found");
-            }
-        });
 
 
         btnDisconnect.setOnClickListener(v -> {
@@ -282,9 +246,7 @@ public class Controller extends AppCompatActivity {
                                     (props & BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) > 0) {
                                 targetChar = characteristic;
                                 Log.d("BLE", "Target characteristic found: " + characteristic.getUuid());
-                                runOnUiThread(() -> {
-                                    controls.setVisibility(View.VISIBLE);
-                                });
+
                                 break;
                             }
                         }
