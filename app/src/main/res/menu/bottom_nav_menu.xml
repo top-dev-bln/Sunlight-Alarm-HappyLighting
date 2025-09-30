@@ -5,12 +5,12 @@
         android:icon="@drawable/circle_placeholder" />
 
     <item
-        android:id="@+id/nav_alarm"
-        android:title="Alarm"
+        android:id="@+id/nav_protocols"
+        android:title="Protocols"
         android:icon="@drawable/circle_placeholder" />
 
     <item
-        android:id="@+id/nav_account"
-        android:title="Account"
+        android:id="@+id/nav_settings"
+        android:title="Settings"
         android:icon="@drawable/circle_placeholder" />
 </menu>

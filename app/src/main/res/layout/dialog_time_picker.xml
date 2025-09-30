@@ -71,20 +71,23 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
-                android:background="@android:color/white"
+                android:background="#2196F3"
                 android:layout_gravity="center_vertical"
                 android:translationY="-30dp"
                 android:focusable="false"
-                android:clickable="false"/>
+                android:clickable="false"
+                android:elevation="4dp"
+                />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
-                android:background="@android:color/white"
+                android:background="#2196F3"
                 android:layout_gravity="center_vertical"
                 android:translationY="35dp"
                 android:focusable="false"
-                android:clickable="false"/>
+                android:clickable="false"
+                android:elevation="4dp"/>
         </FrameLayout>
 
         <!-- Buttons -->

@@ -29,6 +29,10 @@
             android:exported="false" />
 
         <activity android:name=".Settings" />
+        <activity android:name=".Protocols" />
+        <activity android:name=".Protocol_create"/>
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

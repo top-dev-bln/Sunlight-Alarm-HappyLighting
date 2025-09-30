@@ -3,6 +3,7 @@ package com.example.sunlightalarm;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattService;
@@ -51,6 +52,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,9 +98,10 @@ public class Controller extends AppCompatActivity {
 
             if (id == R.id.nav_home) {
                 return true;
-            } else if (id == R.id.nav_alarm) {
+            } else if (id == R.id.nav_protocols) {
+                startActivity(new Intent(this, Protocols.class));
                 return true;
-            } else if (id == R.id.nav_account) {
+            } else if (id == R.id.nav_settings) {
                 startActivity(new Intent(this, Settings.class));
                 return true;
             }
@@ -358,32 +361,7 @@ public class Controller extends AppCompatActivity {
         hourRecycler.addOnScrollListener(hourScaleListener);
         minuteRecycler.addOnScrollListener(minuteScaleListener);
 
-        BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.BottomSheetTheme);
-        dialog.setContentView(view);
-
-        dialog.setOnShowListener(d -> {
-            FrameLayout bottomSheet = dialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
-            if (bottomSheet != null) {
-                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
-                int screenHeight = getResources().getDisplayMetrics().heightPixels;
-                behavior.setPeekHeight((int) (screenHeight * 0.66f), true);
-                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-                behavior.setSkipCollapsed(true);
-                behavior.setDraggable(true);
-            }
-
-            View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                applyBlurBehindDialog(rootView, true);
-            }
-        });
-
-        dialog.setOnDismissListener(d -> {
-            View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                applyBlurBehindDialog(rootView, false);
-            }
-        });
+        BottomSheetDialog dialog = getBottomSheetDialog(view);
 
         Button confirm = view.findViewById(R.id.btn_ok);
         Button cancel = view.findViewById(R.id.btn_cancel);
@@ -411,6 +389,46 @@ public class Controller extends AppCompatActivity {
         dialog.show();
     }
 
+    @NonNull
+    private BottomSheetDialog getBottomSheetDialog(View view) {
+        BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.BottomSheetTheme);
+        dialog.setContentView(view);
+
+        dialog.setOnShowListener(d -> {
+            BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) d;
+            FrameLayout bottomSheet = bottomSheetDialog.findViewById(com.google.android.material.R.id.design_bottom_sheet);
+            if (bottomSheet != null) {
+                BottomSheetBehavior<FrameLayout> behavior = BottomSheetBehavior.from(bottomSheet);
+                int screenHeight = getResources().getDisplayMetrics().heightPixels;
+                behavior.setPeekHeight((int) (screenHeight * 0.66f), true);
+                behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                behavior.setSkipCollapsed(true);
+                behavior.setDraggable(true);
+            } else {
+                dialog.getWindow().setLayout(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    (int) (getResources().getDisplayMetrics().heightPixels * 0.66f)
+                );
+            }
+
+            View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                applyBlurBehindDialog(rootView, true);
+            }
+        });
+
+        dialog.setCancelable(false);
+
+
+
+        dialog.setOnDismissListener(d -> {
+            View rootView = getWindow().getDecorView().findViewById(android.R.id.content);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                applyBlurBehindDialog(rootView, false);
+            }
+        });
+        return dialog;
+    }
 
 
     private void initScannerandConnect() {
