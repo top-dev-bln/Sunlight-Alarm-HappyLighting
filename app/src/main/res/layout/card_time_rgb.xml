@@ -29,7 +29,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="R"
-            android:inputType="textPersonName"
+            android:inputType="number"
+            android:digits="0123456789"
             android:padding="8dp"
             android:textSize="16sp"/>
         <EditText
@@ -37,7 +38,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="G"
-            android:inputType="textPersonName"
+            android:inputType="number"
+            android:digits="0123456789"
             android:padding="8dp"
             android:textSize="16sp"/>
         <EditText
@@ -45,7 +47,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="B"
-            android:inputType="textPersonName"
+            android:inputType="number"
+            android:digits="0123456789"
             android:padding="8dp"
             android:textSize="16sp"/>
 

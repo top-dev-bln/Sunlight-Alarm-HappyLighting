@@ -25,6 +25,11 @@ import androidx.appcompat.app.AlertDialog;
 import android.widget.TextView;
 
 
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -177,6 +182,62 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        SharedPreferences def = getSharedPreferences("Protocols", MODE_PRIVATE);
+
+        if (!def.contains("Default")) {
+            try {
+                JSONObject defaultProtocol = new JSONObject();
+                defaultProtocol.put("name", "Default");
+                defaultProtocol.put("duration", 5);
+
+                JSONArray rgbArray = new JSONArray();
+
+                // Minute 1
+                JSONObject rgb1 = new JSONObject();
+                rgb1.put("r", 250);
+                rgb1.put("g", 0);
+                rgb1.put("b", 0);
+                rgbArray.put(rgb1);
+
+                // Minute 2
+                JSONObject rgb2 = new JSONObject();
+                rgb2.put("r", 255);
+                rgb2.put("g", 128);
+                rgb2.put("b", 0);
+                rgbArray.put(rgb2);
+
+                // Minute 3
+                JSONObject rgb3 = new JSONObject();
+                rgb3.put("r", 255);
+                rgb3.put("g", 255);
+                rgb3.put("b", 0);
+                rgbArray.put(rgb3);
+
+                // Minute 4
+                JSONObject rgb4 = new JSONObject();
+                rgb4.put("r", 0);
+                rgb4.put("g", 255);
+                rgb4.put("b", 0);
+                rgbArray.put(rgb4);
+
+                // Minute 5
+                JSONObject rgb5 = new JSONObject();
+                rgb5.put("r", 0);
+                rgb5.put("g", 0);
+                rgb5.put("b", 255);
+                rgbArray.put(rgb5);
+
+                defaultProtocol.put("rgbValues", rgbArray);
+
+                def.edit().putString("Default", defaultProtocol.toString()).apply();
+                Log.d("Init", "Default protocol created manually with 5 RGB values");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
 
         SharedPreferences prefs = getSharedPreferences("Selected", MODE_PRIVATE);
         String selectedDevice = prefs.getString("device", null);
@@ -344,8 +405,21 @@ public class MainActivity extends AppCompatActivity {
             String address = BLEdevice.getAddress();
             foundDevices.put(address, result);
 
+            ArrayList<ScanResult> sortedList = new ArrayList<>(foundDevices.values());
+            sortedList.sort((a, b) -> {
+                String nameA = a.getDevice().getName();
+                String nameB = b.getDevice().getName();
+
+                boolean hasNameA = nameA != null && !nameA.isEmpty();
+                boolean hasNameB = nameB != null && !nameB.isEmpty();
+
+                if (hasNameA && !hasNameB) return -1;
+                if (!hasNameA && hasNameB) return 1;
+                return 0;
+            });
+
             runOnUiThread(() -> {
-                adapter = new CardAdapter(MainActivity.this, new ArrayList<>(foundDevices.values()));
+                adapter = new CardAdapter(MainActivity.this, sortedList);
                 recyclerView.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
             });

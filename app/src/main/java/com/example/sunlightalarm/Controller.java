@@ -1,7 +1,6 @@
 package com.example.sunlightalarm;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 
 import android.bluetooth.BluetoothDevice;
@@ -13,12 +12,12 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
-import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.RenderEffect;
 import android.graphics.Shader;
-import android.util.TypedValue;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
@@ -53,13 +52,17 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
-// WheelAdapter.java
 
 
 public class Controller extends AppCompatActivity {
+
 
     public interface OnTimeSelectedListener {
         void onTimeSelected(int hour, int minute);
@@ -69,6 +72,8 @@ public class Controller extends AppCompatActivity {
 
 
     String macAddress;
+    String ProtocolName;
+    List<RGBAdapter.RGBValue> rgbValues;
     private BluetoothGatt bluetoothGatt;
     private BluetoothGattCharacteristic targetChar;
 
@@ -90,6 +95,76 @@ public class Controller extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_controller);
+
+        ProtocolName = getIntent().getStringExtra("PROTOCOL_NAME");
+        if (ProtocolName == null) {
+
+            SharedPreferences q = getSharedPreferences("AppState", MODE_PRIVATE);
+            String lastUsed = q.getString("LastUsedProtocol", null);
+            int lastDuration = q.getInt("LastUsedDuration", 0);
+
+
+            if (lastUsed != null) {
+                Log.d("RGB", "Last used protocol: " + lastUsed);
+
+                //TODO aici o sa se caute un nou protocol cu aceasi durata
+                ProtocolName = lastUsed;
+
+                SharedPreferences prefs = getSharedPreferences("Protocols", MODE_PRIVATE);
+
+
+                if (prefs.contains(lastUsed)) {
+                    ProtocolName = lastUsed;
+                } else {
+                    Log.d("RGB", "Last used protocol not found, using default");
+                    ProtocolName = "Default";
+                }
+
+            } else {
+                Log.d("RGB", "No last used protocol, using default");
+                ProtocolName = "Default";
+            }
+
+
+        }
+
+
+
+        SharedPreferences prefs = getSharedPreferences("Protocols", MODE_PRIVATE);
+        //TODO in loc de null la default value sa avem un protocol default si sa nu mai fie stocat acolo
+        String json = prefs.getString(ProtocolName, null);
+
+        if (json != null) {
+            try {
+                JSONObject obj = new JSONObject(json);
+                int duration = obj.getInt("duration");
+
+                JSONArray rgbArray = obj.getJSONArray("rgbValues");
+                rgbValues = new ArrayList<>();
+
+                for (int i = 0; i < rgbArray.length(); i++) {
+                    JSONObject rgb = rgbArray.getJSONObject(i);
+                    int r = rgb.getInt("r");
+                    int g = rgb.getInt("g");
+                    int b = rgb.getInt("b");
+                    rgbValues.add(new RGBAdapter.RGBValue(r, g, b));
+                }
+
+                // You now have the protocol details
+                Log.d("RGB", "Loaded " + obj.getString("name"));
+                Log.d("RGB", "Duration: " + duration);
+                Log.d("RGB", "RGB entries: " + rgbValues.size());
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Log.d("RGB", "Protocol not found");
+        }
+
+
+
+
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
@@ -135,26 +210,29 @@ public class Controller extends AppCompatActivity {
         );
 
 
+        Handler handler = new Handler(Looper.getMainLooper());
+        int[] i = {0};
 
-
-        Button btnDisconnect = findViewById(R.id.button_Disconnect);
-
-        btnDisconnect.setOnClickListener(v -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                        ActivityCompat.checkSelfPermission(Controller.this, Manifest.permission.BLUETOOTH_CONNECT)
-                                != PackageManager.PERMISSION_GRANTED) {
-                    Log.e("BLE", "BLUETOOTH_CONNECT permission not granted, cannot discover services");
-                    return;
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (i[0] < rgbValues.size()) {
+                    RGBAdapter.RGBValue rgb = rgbValues.get(i[0]);
+                    Log.d("RGB", "Minute" + i[0] + ": " + "R:" + rgb.r + " G:" + rgb.g + " B:" + rgb.b);
+                    i[0]++;
+                    handler.postDelayed(this, 1000); // run again after 1 second
                 }
-                bluetoothGatt.disconnect();
-                SharedPreferences prefs = getSharedPreferences("Selected", MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putString("device", null);
-                editor.apply();
+            }
+        };
 
-                Intent intent = new Intent(Controller.this,MainActivity.class);
-                startActivity(intent);
-                finish();
+        Button btnPreview = findViewById(R.id.button_Preview);
+
+        btnPreview.setOnClickListener(v -> {
+               Log.d("RGB", "Preview button clicked");
+
+            handler.post(runnable);
+
+
         });
 
 
@@ -218,25 +296,6 @@ public class Controller extends AppCompatActivity {
     }
 
 
-    private void setNumberPickerTextAppearance(NumberPicker numberPicker, float sizeSp, int color) {
-        int count = numberPicker.getChildCount();
-        for (int i = 0; i < count; i++) {
-            View child = numberPicker.getChildAt(i);
-            if (child instanceof EditText) {
-                EditText editText = (EditText) child;
-                editText.setTextSize(sizeSp);
-                editText.setTextColor(color);
-            }
-        }
-
-
-        numberPicker.setOnValueChangedListener((picker, oldVal, newVal) ->
-                setNumberPickerTextAppearance(picker, sizeSp, color)
-        );
-    }
-
-
-
     private void applyBlurBehindDialog(View rootView, boolean enable) {
         if (enable) {
             RenderEffect blurEffect = null;
@@ -266,7 +325,6 @@ public class Controller extends AppCompatActivity {
         for (int i = 0; i < 24; i++) hours.add(String.format("%02d", i));
         for (int i = 0; i < 60; i++) minutes.add(String.format("%02d", i));
 
-        // circular lists for infinite feel
         List<String> circularHours = new ArrayList<>();
         List<String> circularMinutes = new ArrayList<>();
         int repeat = 100;
@@ -294,20 +352,17 @@ public class Controller extends AppCompatActivity {
         minuteRecycler.setHasFixedSize(true);
         minuteRecycler.setNestedScrollingEnabled(false);
 
-        // Snap helpers
         LinearSnapHelper hourSnap = new LinearSnapHelper();
         hourSnap.attachToRecyclerView(hourRecycler);
 
         LinearSnapHelper minuteSnap = new LinearSnapHelper();
         minuteSnap.attachToRecyclerView(minuteRecycler);
 
-        // scroll to middle initially
         int middleHour = circularHours.size() / 2;
         int middleMinute = circularMinutes.size() / 2;
         hourRecycler.scrollToPosition(middleHour);
         minuteRecycler.scrollToPosition(middleMinute);
 
-        // Dynamic scaling and white color
         RecyclerView.OnScrollListener hourScaleListener = new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
@@ -324,9 +379,9 @@ public class Controller extends AppCompatActivity {
                         WheelAdapter.WheelViewHolder holder = (WheelAdapter.WheelViewHolder) recyclerView.getChildViewHolder(child);
                         adapter.setItemScale(holder, scale);
                         if (scale >= 0.85f) {
-                            holder.textView.setTextColor(Color.parseColor("#2196F3")); // blue for center
+                            holder.textView.setTextColor(Color.parseColor("#2196F3"));
                         } else {
-                            holder.textView.setTextColor(Color.argb(255, 255, 255, 255)); // white for others
+                            holder.textView.setTextColor(Color.argb(255, 255, 255, 255));
                         }
                     }
                 }
